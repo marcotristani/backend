@@ -11,7 +11,7 @@ import jakarta.persistence.PreUpdate;
 import jakarta.validation.constraints.NotBlank;
 
 @MappedSuperclass
-public class EntityBaseNomeSlug {
+public abstract class EntityBaseNomeSlug {
 
     @NotBlank(message = "Il nome non può essere vuoto")
     private String nome;
