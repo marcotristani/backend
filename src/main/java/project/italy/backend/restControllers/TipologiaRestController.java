@@ -13,7 +13,7 @@ import project.italy.backend.service.TipologiaService;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/api/tipologie")
+@RequestMapping("/api/vini/tipologie")
 public class TipologiaRestController {
 
     @Autowired

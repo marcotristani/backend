@@ -13,7 +13,7 @@ import project.italy.backend.service.CategoriaService;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/api/categorie")
+@RequestMapping("/api/prodotti/categorie")
 public class CategoriaRestController {
 
     @Autowired

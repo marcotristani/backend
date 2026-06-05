@@ -2,6 +2,8 @@ package project.italy.backend.models;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,6 +20,7 @@ public class Categoria extends EntityBaseNomeSlug {
     private Integer id;
 
     @OneToMany(mappedBy = "categoria")
+    @JsonIgnore
     private List<ProdottoTipico> prodottiTipici;
 
     public Integer getId() {
