@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.hibernate.validator.constraints.URL;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -39,14 +41,17 @@ public class ProdottoTipico extends EntityBaseNomeSlug {
     private String linkStore;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "regione_id", nullable = false)
     private Regione regione;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "prodotto_vino", joinColumns = @JoinColumn(name = "prodotto_id"), inverseJoinColumns = @JoinColumn(name = "vino_id"))
     private List<Vino> vini;
 
