@@ -7,7 +7,7 @@
   </head>
   <body class="bg-light">
     <th:block
-      th:replace="~{fragments/navbarProdotti :: navbarProdotti(${Listacategorie}, ${categoriaSelezionata})}"
+      th:replace="~{fragments/navbarProdotti :: navbarProdotti(${Listacategorie}, ${categoriaSelezionata}, ${regioneSelezionata})}"
     />
 
     <div class="container py-5">
@@ -20,7 +20,7 @@
         </header>
 
         <th:block
-          th:replace="~{fragments/bottoneOrdinamento :: bottoneOrdinamento( ${categoriaSelezionata}, null)}"
+          th:replace="~{fragments/bottoneOrdinamento :: bottoneOrdinamento( ${categoriaSelezionata}, ${regioneSelezionata})}"
         />
 
         <div class="table-responsive bg-white shadow-sm rounded">

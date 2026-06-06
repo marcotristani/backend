@@ -1,4 +1,6 @@
-<th:block th:fragment="navbarProdotti(Listacategorie, categoriaSelezionata)">
+<th:block
+  th:fragment="navbarProdotti(Listacategorie, categoriaSelezionata, regioneSelezionata)"
+>
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
     <div class="container-fluid px-4">
       <button
@@ -22,7 +24,7 @@
             <a
               th:href="@{/backoffice/prodotti/all}"
               class="nav-link fw-semibold"
-              th:classappend="${categoriaSelezionata == null} ? 'active' : ''"
+              th:classappend="${categoriaSelezionata == null && regioneSelezionata==null} ? 'active' : ''"
             >
               Tutti i Prodotti
             </a>
@@ -32,13 +34,26 @@
             class="nav-item mx-2"
             th:object="${categoria}"
           >
-            <a
-              th:href="@{/backoffice/prodotti/categoria/{slugCategoria}(slugCategoria=*{slug})}"
-              class="nav-link"
-              th:classappend="${categoriaSelezionata != null && categoriaSelezionata.slug == categoria.slug} ? 'active fw-semibold' : 'text-white-50'"
-            >
-              [[*{nome}]]
-            </a>
+            <th:block th:if="${regioneSelezionata == null}">
+              <a
+                th:href="@{/backoffice/prodotti/categoria/{slugCategoria}(slugCategoria=*{slug})}"
+                class="nav-link"
+                th:classappend="${categoriaSelezionata != null && categoriaSelezionata.slug == categoria.slug} ? 'active fw-semibold' : 'text-white-50'"
+              >
+                [[*{nome}]]
+              </a>
+            </th:block>
+            <th:block th:if="${regioneSelezionata != null}">
+              <a
+                th:href="@{/backoffice/prodotti/categoria/{slugCategoria}/regione/{slugRegione}(slugCategoria=${categoria.slug}, slugRegione=${regioneSelezionata.slug})}"
+                class="nav-link"
+                th:classappend="${categoriaSelezionata != null
+                && categoriaSelezionata.slug == categoria.slug} ? 'active
+                fw-semibold' : 'text-white-50'"
+              >
+                [[*{nome}]]
+              </a>
+            </th:block>
           </li>
         </ul>
       </div>
