@@ -3,24 +3,40 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <th:block th:replace="~{fragments/head :: head('Prodotti Tipici')}" />
+    <th:block th:replace="~{fragments/headScript :: head('Prodotti Tipici')}" />
   </head>
   <body class="bg-light">
     <th:block
-      th:replace="~{fragments/navbarProdotti :: navbarProdotti(${Listacategorie}, ${categoriaSelezionata}, ${regioneSelezionata})}"
+      th:replace="~{fragments/navbarProdotti :: navbarProdotti(${Listacategorie}, ${categoriaSelezionata}, ${regioneSelezionata}, null)}"
     />
 
     <div class="container py-5">
       <div class="container py-5">
         <header class="text-center mb-5">
-          <h1 class="display-5 fw-bold text-primary mb-3">Prodotti Tipici</h1>
-          <p class="lead text-muted mx-auto" style="max-width: 800px">
-            Questa è la lista di tutti i prodotti tipici
-          </p>
+          <th:block th:if="${regioneSelezionata == null}">
+            <h1 class="display-5 fw-bold text-primary mb-3">Prodotti Tipici</h1>
+          </th:block>
+
+          <th:block th:unless="${regioneSelezionata == null}">
+            <h1 class="display-5 fw-bold text-primary mb-3">
+              Prodotti Tipici [[${regioneSelezionata.nome}]]
+            </h1>
+          </th:block>
+          <th:block th:if="${categoriaSelezionata == null}">
+            <p class="lead text-muted mx-auto" style="max-width: 800px">
+              Questa è la lista di tutti i prodotti tipici
+            </p>
+          </th:block>
+          <th:block th:if="${categoriaSelezionata != null}">
+            <p class="lead text-muted mx-auto" style="max-width: 800px">
+              Questa è la lista dei prodotti tipici della categoria
+              [[${categoriaSelezionata.nome}]]
+            </p>
+          </th:block>
         </header>
 
         <th:block
-          th:replace="~{fragments/bottoneOrdinamento :: bottoneOrdinamento( ${categoriaSelezionata}, ${regioneSelezionata})}"
+          th:replace="~{fragments/bottoneOrdinamento :: bottoneOrdinamento( ${categoriaSelezionata}, ${regioneSelezionata},null)}"
         />
 
         <div class="table-responsive bg-white shadow-sm rounded">
@@ -85,5 +101,6 @@
         </div>
       </div>
     </div>
+    <th:block th:replace="~{fragments/headScript :: script}" />
   </body>
 </html>

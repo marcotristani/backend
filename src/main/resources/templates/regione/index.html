@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <th:block th:replace="~{fragments/head :: head('Homepage')}" />
+    <th:block th:replace="~{fragments/headScript :: head('Homepage')}" />
   </head>
   <body class="bg-light">
     <div class="container py-5">
@@ -60,5 +60,6 @@
         </div>
       </main>
     </div>
+    <th:block th:replace="~{fragments/headScript :: script}" />
   </body>
 </html>
