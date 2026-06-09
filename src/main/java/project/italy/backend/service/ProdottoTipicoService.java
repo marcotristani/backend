@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import project.italy.backend.models.Categoria;
 import project.italy.backend.models.ProdottoTipico;
 import project.italy.backend.models.Regione;
+import project.italy.backend.models.Vino;
 import project.italy.backend.repository.ProdottoTipicoRepository;
 
 @Service
@@ -84,5 +85,17 @@ public class ProdottoTipicoService {
         }
 
         return prodottoTipicoRepository.findByViniSlug(slugVino);
+    }
+
+    public ProdottoTipico create(ProdottoTipico nuovoProdottoTipico, Regione regioneSelezionata,
+            Categoria categoriaSelezionata, List<Vino> viniSelezionati) {
+        nuovoProdottoTipico.setRegione(regioneSelezionata);
+        nuovoProdottoTipico.setCategoria(categoriaSelezionata);
+        nuovoProdottoTipico.setVini(viniSelezionati);
+        return prodottoTipicoRepository.save(nuovoProdottoTipico);
+    }
+
+    public ProdottoTipico save(ProdottoTipico prodottoTipico) {
+        return prodottoTipicoRepository.save(prodottoTipico);
     }
 }

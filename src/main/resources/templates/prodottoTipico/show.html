@@ -118,12 +118,22 @@
           class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3"
         >
           <h3 class="h5 fw-bold text-dark mb-0">Vini Associati</h3>
-          <a
-            th:href="@{/backoffice/vini/all}"
-            class="btn btn-sm btn-outline-primary fw-semibold"
-          >
-            Vedi tutti i Vini
-          </a>
+
+          <!-- Contenitore flessibile per affiancare i pulsanti con spaziatura -->
+          <div class="d-flex gap-2">
+            <a
+              th:href="@{/backoffice/vini/all}"
+              class="btn btn-sm btn-outline-secondary fw-semibold shadow-sm"
+            >
+              Vedi tutti i Vini
+            </a>
+            <a
+              th:href="@{/backoffice/prodotti/dettaglio/{slug}/gestisci-vini(slug=*{slug})}"
+              class="btn btn-sm btn-outline-primary fw-semibold shadow-sm"
+            >
+              Gestisci Vini Collegati
+            </a>
+          </div>
         </div>
 
         <div

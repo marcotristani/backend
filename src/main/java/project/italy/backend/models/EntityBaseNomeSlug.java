@@ -16,8 +16,7 @@ public abstract class EntityBaseNomeSlug {
     @NotBlank(message = "Il nome non può essere vuoto")
     private String nome;
 
-    @NotBlank(message = "Lo slug non può essere vuoto")
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String slug;
 
     @PrePersist

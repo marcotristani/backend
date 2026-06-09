@@ -1,22 +1,29 @@
 package project.italy.backend.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import jakarta.validation.Valid;
 import project.italy.backend.models.Categoria;
 import project.italy.backend.models.ProdottoTipico;
 import project.italy.backend.models.Regione;
+import project.italy.backend.models.Vino;
 import project.italy.backend.service.CategoriaService;
 import project.italy.backend.service.ProdottoTipicoService;
 import project.italy.backend.service.RegioneService;
+import project.italy.backend.service.VinoService;
 
 @Controller
 @RequestMapping("/backoffice/prodotti")
@@ -31,6 +38,9 @@ public class ProdottoTipicoController {
     @Autowired
     RegioneService regioneService;
 
+    @Autowired
+    VinoService vinoService;
+
     @GetMapping("/all")
     public String index(@RequestParam(defaultValue = "default") String order, Model model) {
         List<ProdottoTipico> prodottiTipici = prodottoTipicoService.findAllProdottiOrdinati(order);
@@ -39,6 +49,7 @@ public class ProdottoTipicoController {
         model.addAttribute("listaCategorie", listaCategorie);
         model.addAttribute("categoriaSelezionata", null);
         model.addAttribute("regioneSelezionata", null);
+        model.addAttribute("edit", false);
         return "prodottoTipico/index";
     }
 
@@ -112,6 +123,137 @@ public class ProdottoTipicoController {
         ProdottoTipico prodottoTipico = prodottoTipicoService.getBySlug(slug);
         model.addAttribute("prodottoTipico", prodottoTipico);
         return "prodottoTipico/show";
+    }
+
+    @GetMapping("/create")
+    public String create(Model model) {
+        ProdottoTipico nuovoProdottoTipico = new ProdottoTipico();
+        List<Regione> listaRegioni = regioneService.getRegioniOrdinate();
+        List<Categoria> listaCategorie = categoriaService.getCategorieOrdinate();
+        model.addAttribute("listaCategorie", listaCategorie);
+        model.addAttribute("listaRegioni", listaRegioni);
+        model.addAttribute("nuovoProdottoTipico", nuovoProdottoTipico);
+        return "prodottoTipico/create-or-edit";
+    }
+
+    @PostMapping("/create")
+    public String store(@Valid @ModelAttribute("nuovoProdottoTipico") ProdottoTipico formProdottoTipico,
+            BindingResult bindingResult, Model model) {
+        List<Regione> listaRegioni = regioneService.getRegioniOrdinate();
+        List<Categoria> listaCategorie = categoriaService.getCategorieOrdinate();
+
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().forEach(error -> System.out.println("TEST ERRORE FORM: " + error.toString()));
+            model.addAttribute("listaCategorie", listaCategorie);
+            model.addAttribute("listaRegioni", listaRegioni);
+
+            return "prodottoTipico/create-or-edit";
+        }
+
+        Optional<Regione> optionalRegioneSelezionata = regioneService
+                .findRegioneBySlug(formProdottoTipico.getRegione().getSlug());
+        if (optionalRegioneSelezionata.isEmpty()) {
+            model.addAttribute("listaCategorie", listaCategorie);
+            model.addAttribute("listaRegioni", listaRegioni);
+
+            return "prodottoTipico/create-or-edit";
+        }
+        Regione regioneSelezionata = optionalRegioneSelezionata.get();
+
+        Optional<Categoria> optionalCategoriaSelezionata = categoriaService
+                .findCategoriaBySlug(formProdottoTipico.getCategoria().getSlug());
+        if (optionalCategoriaSelezionata.isEmpty()) {
+            model.addAttribute("listaCategorie", listaCategorie);
+            model.addAttribute("listaRegioni", listaRegioni);
+
+            return "prodottoTipico/create-or-edit";
+        }
+        Categoria categoriaSelezionata = optionalCategoriaSelezionata.get();
+
+        List<Vino> viniSelezionati = new ArrayList<>();
+
+        ProdottoTipico nuovoProdottoSalvato = prodottoTipicoService.create(formProdottoTipico, regioneSelezionata,
+                categoriaSelezionata, viniSelezionati);
+        return "redirect:/backoffice/prodotti/dettaglio/" + nuovoProdottoSalvato.getSlug();
+    }
+
+    @GetMapping("/dettaglio/{slug}/gestisci-vini")
+    public String mostraGestioneVini(@PathVariable("slug") String slug, Model model) {
+        Optional<ProdottoTipico> optionalProdottoTipico = prodottoTipicoService.findBySlug(slug);
+        if (optionalProdottoTipico.isEmpty()) {
+            return "error/404";
+        }
+        ProdottoTipico prodotto = prodottoTipicoService.getBySlug(slug);
+
+        List<Vino> listaVini = vinoService.findAllViniOrdinati("alfabetico");
+
+        model.addAttribute("prodottoTipico", prodotto);
+        model.addAttribute("listaVini", listaVini);
+
+        return "prodottoTipico/gestisci-vini";
+    }
+
+    @PostMapping("/dettaglio/{slugProdotto}/associa-vino/{slugVino}")
+    public String associaVino(
+            @PathVariable("slugProdotto") String slugProdotto,
+            @PathVariable("slugVino") String slugVino) {
+
+        Optional<ProdottoTipico> optionalProdottoTipico = prodottoTipicoService.findBySlug(slugProdotto);
+        if (optionalProdottoTipico.isEmpty()) {
+            return "error/404";
+        }
+
+        ProdottoTipico prodottoTipico = prodottoTipicoService.getBySlug(slugProdotto);
+        Optional<Vino> optionalVino = vinoService.findBySlug(slugVino);
+
+        if (!optionalVino.isEmpty()) {
+            Vino vinoselezionato = optionalVino.get();
+            if (!prodottoTipico.getVini().contains(vinoselezionato)) {
+                prodottoTipico.getVini().add(vinoselezionato);
+                prodottoTipicoService.save(prodottoTipico);
+            }
+        }
+
+        return "redirect:/backoffice/prodotti/dettaglio/" + slugProdotto + "/gestisci-vini";
+    }
+
+    @PostMapping("/dettaglio/{slugProdotto}/scollega-vino/{slugVino}")
+    public String scollegaVino(
+            @PathVariable("slugProdotto") String slugProdotto,
+            @PathVariable("slugVino") String slugVino) {
+        Optional<ProdottoTipico> optionalProdottoTipico = prodottoTipicoService.findBySlug(slugProdotto);
+        if (optionalProdottoTipico.isEmpty()) {
+            return "error/404";
+        }
+
+        ProdottoTipico prodottoTipico = prodottoTipicoService.getBySlug(slugProdotto);
+        Optional<Vino> optionalVino = vinoService.findBySlug(slugVino);
+
+        if (!optionalVino.isEmpty()) {
+            Vino vinoDeselezionato = optionalVino.get();
+            if (prodottoTipico.getVini().contains(vinoDeselezionato)) {
+                prodottoTipico.getVini().remove(vinoDeselezionato);
+                prodottoTipicoService.save(prodottoTipico); // Aggiorna la tabella di giunzione
+            }
+        }
+
+        return "redirect:/backoffice/prodotti/dettaglio/" + slugProdotto + "/gestisci-vini";
+    }
+
+    @GetMapping("/{slug}/edit")
+    public String modify(@PathVariable("slug") String slug, Model model) {
+        Optional<ProdottoTipico> optionalProdotto = prodottoTipicoService.findBySlug(slug);
+        if (optionalProdotto.isEmpty()) {
+            return "error/404";
+        }
+        ProdottoTipico prodottoTipico = prodottoTipicoService.getBySlug(slug);
+        List<Regione> listaRegioni = regioneService.getRegioniOrdinate();
+        List<Categoria> listaCategorie = categoriaService.getCategorieOrdinate();
+        model.addAttribute("listaCategorie", listaCategorie);
+        model.addAttribute("listaRegioni", listaRegioni);
+        model.addAttribute("nuovoProdottoTipico", prodottoTipico);
+        model.addAttribute("edit", true);
+        return "prodottoTipico/create-or-edit";
     }
 
 }
